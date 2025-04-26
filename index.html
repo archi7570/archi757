@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accueil - E.B.J Éditeur</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+        }
+
+        body {
+            background: #1e1e1e;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* ========== MENU BURGER ========== */
+        .menu-icon {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 30px;
+            cursor: pointer;
+            color: #fff;
+            background: rgba(0, 0, 0, 0.6);
+            padding: 15px;
+            border-radius: 50%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+            transition: 0.3s ease;
+            z-index: 1001;
+        }
+
+        .menu-icon:hover {
+            background: rgba(255, 152, 0, 0.8);
+        }
+
+        /* ========== MENU LATÉRAL ========== */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -250px;
+            width: 250px;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.5);
+            transition: 0.4s ease-in-out;
+            padding-top: 60px;
+            z-index: 1000;
+        }
+
+        .sidebar.active {
+            left: 0;
+        }
+
+        .sidebar a {
+            display: block;
+            padding: 15px;
+            color: white;
+            text-decoration: none;
+            font-size: 1.2em;
+            transition: 0.3s ease;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .sidebar a:hover {
+            background: #ff9800;
+            padding-left: 25px;
+        }
+
+        /* Bouton fermer */
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 25px;
+            cursor: pointer;
+            color: white;
+        }
+
+        /* ========== IMAGE EN HAUT ========== */
+        .header-image {
+            width: 150px; /* Taille réduite */
+            height: 180px; /* Taille réduite */
+            margin-top: 150px; /* Décalage encore plus bas */
+            margin-bottom: 20px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        /* ========== CONTENU PRINCIPAL ========== */
+        .container {
+            background: rgba(0, 0, 0, 0.7);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+            animation: fadeIn 1.5s ease-in-out;
+        }
+
+        h1 {
+            font-size: 3em;
+            margin-bottom: 15px;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #ff9800;
+        }
+
+        p {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+        }
+
+        button {
+            background: #ff9800;
+            color: #fff;
+            border: none;
+            padding: 16px 28px;
+            font-size: 1.4em;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 220px;
+            margin: 10px;
+        }
+
+        button:hover {
+            background: #e68900;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Icône du menu -->
+    <div class="menu-icon" onclick="toggleMenu()">☰</div>
+
+    <!-- Menu latéral -->
+    <div class="sidebar" id="sidebar">
+        <span class="close-btn" onclick="toggleMenu()">×</span>
+        <a href="index.html" onclick="closeMenu()">🏠 Accueil</a>
+        <a href="historique.html" onclick="closeMenu()">📜 Historique</a>
+        <a href="album.html" onclick="closeMenu()">📸 Album</a>
+        <a href="favoris.html" onclick="closeMenu()">⭐ Favoris</a>
+        <a href="apropos.html" onclick="closeMenu()">ℹ️ À propos</a>
+    </div>
+
+    <!-- Image en haut -->
+    <img src="eb.jpg" alt="Illustration" class="header-image">
+
+    <!-- Contenu principal -->
+    <div class="container">
+        <h1>Bienvenue sur E.B.J Éditeur</h1>
+        <p>Transformez vos images et vidéos avec des outils puissants et intuitifs.</p>
+        <div>
+            <a href="eb.html"> <button onclick="startEditing()">Lancer l'Éditeur</button></a>
+            <button onclick="goToOtherPage()">Autre Page</button>
+        </div>
+    </div>
+
+    <script>
+        function toggleMenu() {
+            var sidebar = document.getElementById("sidebar");
+            sidebar.classList.toggle("active");
+        }
+
+        function closeMenu() {
+            document.getElementById("sidebar").classList.remove("active");
+        }
+
+        function startEditing() {
+            window.location.href = "editor.html";
+        }
+
+        function goToOtherPage() {
+            window.location.href = "autre-page.html";
+        }
+
+        // Fermer le menu si on clique en dehors
+        document.addEventListener("click", function(event) {
+            var sidebar = document.getElementById("sidebar");
+            var menuIcon = document.querySelector(".menu-icon");
+
+            if (!sidebar.contains(event.target) && !menuIcon.contains(event.target)) {
+                sidebar.classList.remove("active");
+            }
+        });
+    </script>
+
+</body>
+</html>

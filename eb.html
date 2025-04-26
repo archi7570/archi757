@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Éditeur Photo & Vidéo</title>
+  <style>
+    * { 
+      box-sizing: border-box; margin: 0; padding: 0; font-family: Arial, sans-serif; 
+      }
+    body { 
+      background: #1e1e1e; color: #fff; display: flex; flex-direction: column; align-items: center; height: 100vh; overflow: hidden; 
+        }
+    h1 { 
+      text-align: center; background: #333; width: 100%; padding: 15px; font-size: 1.5em; border-bottom: 1px solid #444; 
+       }
+
+    .filter-bar { 
+      width: 100%; background: #222; display: none; padding: 10px; overflow-x: auto; position: absolute; top: 50px; z-index: 10; 
+                }
+    .filter-bar button { 
+      background: #444; color: #fff; border: none; padding: 10px; margin: 5px; border-radius: 6px; cursor: pointer; 
+                       }
+
+    .editor { 
+      flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; max-width: 700px; padding: 10px; }
+    canvas {
+     border: 3px solid #555; background: #2a2a2a; border-radius: 8px; 
+            , }
+
+    .slider-container { width: 100%; text-align: center; padding: 10px; background: #222; display: none; }
+    .slider-container input { width: 80%; }
+    .slider-value { color: #ff9800; font-weight: bold; margin-left: 10px; }
+
+    .toolbar-container { width: 100%; background: #333; border-top: 2px solid #444; overflow-x: auto; padding: 10px 0; display: flex; justify-content: center; }
+    .toolbar { display: flex; gap: 8px; padding: 10px; overflow-x: auto; scroll-behavior: smooth; }
+    .toolbar button { background: #444; color: #fff; border: none; padding: 12px; border-radius: 6px; cursor: pointer; flex-shrink: 0; }
+  </style>
+</head>
+<body>
+  <h1>Éditeur Photo & Vidéo</h1>
+
+  <div class="filter-bar" id="filterBar">
+    <button onclick="applyFilter('contrast')">⚫ Contraste</button>
+    <button onclick="applyFilter('brightness')">☀️ Luminosité</button>
+    <button onclick="applyFilter('saturation')">🌈 Saturation</button>
+    <button onclick="applyFilter('blur')">🌫️ Flou</button>
+    <button onclick="applyFilter('invert')">🔄 Inversion</button>
+    <button onclick="applyFilter('grayscale')">⚪ Noir & Blanc</button>
+    <button onclick="applyFilter('sepia')">🍂 Sepia</button>
+    <button onclick="resetFilters()">🔄 Réinitialiser</button>
+  </div>
+
+  <input type="file" id="upload" accept="image/*" style="display: none;" onchange="loadImage(event)">
+
+  <div class="editor">
+    <canvas id="canvas"></canvas>
+    
+    <div class="slider-container" id="sliderContainer">
+      <input type="range" id="filterSlider" min="-100" max="100" value="0" oninput="updateFilter()">
+      <span class="slider-value" id="sliderValue">0</span>
+    </div>
+  </div>
+
+  <div class="toolbar-container">
+    <div class="toolbar">
+      <button onclick="document.getElementById('upload').click()">📷 Importer</button>
+      <button onclick="toggleFilterBar()">🎨 Filtre</button>
+      <button onclick="saveImage()">💾 Enregistrer</button>
+      <button onclick="resetCanvas()">🔄 Réinitialiser</button>
+      <button onclick="cancelImport()">❌ Annuler</button> 
+    </div>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("canvas");
+    const ctx = canvas.getContext("2d");
+    const filterBar = document.getElementById("filterBar");
+    const sliderContainer = document.getElementById("sliderContainer");
+    const filterSlider = document.getElementById("filterSlider");
+    const sliderValue = document.getElementById("sliderValue");
+
+    let img = new Image();
+    let imgLoaded = false;
+    let originalImg = new Image();
+    let currentFilter = "";
+    let filters = {
+      contrast: 0,
+      brightness: 0,
+      saturation: 0,
+      blur: 0,
+      invert: 0,
+      grayscale: 0,
+      sepia: 0,
+    };
+
+    function loadImage(event) {
+      const file = event.target.files[0];
+      if (file) {
+        img.src = URL.createObjectURL(file);
+        img.onload = () => {
+          originalImg.src = img.src;
+          originalImg.onload = () => {
+            let ratio = Math.min(250 / originalImg.width, 400 / originalImg.height);
+            canvas.width = originalImg.width * ratio;
+            canvas.height = originalImg.height * ratio;
+
+            ctx.drawImage(originalImg, 0, 0, canvas.width, canvas.height);
+            imgLoaded = true;
+          };
+        };
+      }
+    }
+
+    function toggleFilterBar() {
+      filterBar.style.display = filterBar.style.display === "flex" ? "none" : "flex";
+      sliderContainer.style.display = "none";
+    }
+
+    function applyFilter(filter) {
+      if (!imgLoaded) return alert("Importe une image d'abord !");
+      currentFilter = filter;
+      filterSlider.value = filters[filter];
+      sliderValue.textContent = filters[filter];
+      sliderContainer.style.display = "block";
+    }
+
+    function updateFilter() {
+      if (!imgLoaded) return;
+      filters[currentFilter] = parseInt(filterSlider.value);
+      sliderValue.textContent = filterSlider.value;
+      applyFilterEffects();
+    }
+
+    function applyFilterEffects() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.filter = `contrast(${100 + filters.contrast}%) brightness(${100 + filters.brightness}%) saturate(${100 + filters.saturation}%)
+        blur(${filters.blur}px) invert(${filters.invert}%) grayscale(${filters.grayscale}%)
+        sepia(${filters.sepia}%)`;
+      ctx.drawImage(originalImg, 0, 0, canvas.width, canvas.height);
+    }
+
+    function resetFilters() {
+      Object.keys(filters).forEach(key => filters[key] = 0);
+      applyFilterEffects();
+      sliderContainer.style.display = "none";
+    }
+
+    function resetCanvas() {
+      if (!imgLoaded) return alert("Importe une image d'abord !");
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(originalImg, 0, 0, canvas.width, canvas.height);
+      resetFilters();
+    }
+
+    function cancelImport() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      img = new Image();
+      imgLoaded = false;
+      originalImg = new Image();
+      resetFilters();
+    }
+
+    function saveImage() {
+      if (!imgLoaded) return alert("Importe une image d'abord !");
+      const tempCanvas = document.createElement("canvas");
+      const tempCtx = tempCanvas.getContext("2d");
+
+      tempCanvas.width = originalImg.width;
+      tempCanvas.height = originalImg.height;
+
+      tempCtx.filter = ctx.filter;
+      tempCtx.drawImage(originalImg, 0, 0, originalImg.width, originalImg.height);
+
+      const link = document.createElement("a");
+      link.download = "image_editee.png";
+      link.href = tempCanvas.toDataURL();
+      link.click();
+    }
+  </script>
+</body>
+</html>
